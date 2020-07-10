@@ -10,7 +10,7 @@ class Definition:
     zones_per_match: int
     matches_per_round: int
     num_teams: int
-    all_vs_all: bool
+    all_vs_all: int
     max_overlap: int
 
 def generate_problem(out: IO[str], definition: Definition) -> None:
@@ -41,7 +41,7 @@ def generate_problem(out: IO[str], definition: Definition) -> None:
             out.write(")))\n")
         out.write("\n")
 
-    if definition.all_vs_all:
+    if definition.all_vs_all == 1:
         # Implement the all vs all constraint
         for team in range(1, definition.num_teams):
             for other_team in range(team + 1, definition.num_teams + 1):
@@ -55,6 +55,23 @@ def generate_problem(out: IO[str], definition: Definition) -> None:
                                 out.write(f"        (= r{round}m{match}z{zone_2} {other_team})\n")
                                 out.write( "    )\n")
                 out.write("))\n")
+        out.write("\n")
+    elif definition.all_vs_all > 1:
+        # Implement the all vs all constraint for facing everyone multiple times;
+        # this is a slower code path than just requiring once since we need to sum
+        # rather than or.
+        for team in range(1, definition.num_teams):
+            for other_team in range(team + 1, definition.num_teams + 1):
+                out.write(f"(assert (<= {definition.all_vs_all} (+\n")
+                for round in range(1, definition.num_rounds + 1):
+                    for match in range(1, definition.matches_per_round + 1):
+                        for zone_1 in range(1, definition.zones_per_match):
+                            for zone_2 in range(zone_1 + 1, definition.zones_per_match + 1):
+                                out.write( "    (ite (and \n")
+                                out.write(f"        (= r{round}m{match}z{zone_1} {team})\n")
+                                out.write(f"        (= r{round}m{match}z{zone_2} {other_team})\n")
+                                out.write( "    ) 1 0)\n")
+                out.write(")))\n")
         out.write("\n")
 
     # Compute overlap
@@ -82,7 +99,7 @@ def main():
         zones_per_match=4,
         matches_per_round=12,
         num_teams=12,
-        all_vs_all=True,
+        all_vs_all=1,
         max_overlap=2,
     )
     generate_problem(sys.stdout, defn)
