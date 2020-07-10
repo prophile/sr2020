@@ -99,7 +99,7 @@ def main():
         zones_per_match=4,
         matches_per_round=12,
         num_teams=12,
-        all_vs_all=1,
+        all_vs_all=2,
         max_overlap=2,
     )
     generate_problem(sys.stdout, defn)
