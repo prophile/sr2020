@@ -80,8 +80,8 @@ def main():
     defn = Definition(
         num_rounds=2,
         zones_per_match=4,
-        matches_per_round=10,
-        num_teams=10,
+        matches_per_round=12,
+        num_teams=12,
         all_vs_all=True,
         max_overlap=2,
     )
